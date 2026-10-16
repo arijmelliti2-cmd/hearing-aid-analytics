@@ -1,0 +1,13 @@
+﻿event_id,user_id,event_timestamp,environment_noise_db,activity,battery_pct,volume_level,noise_reduction_level,feedback_rating,device_model
+E001,U001,2026-10-01 08:00:00,42,walking,95,5,3,5,HA_A
+E002,U001,2026-10-01 09:00:00,68,commuting,91,7,4,3,HA_A
+E003,U002,2026-10-01 09:15:00,35,sitting,88,4,2,5,HA_B
+E004,U003,2026-10-01 10:30:00,75,working,82,8,5,2,HA_A
+E005,U002,2026-10-01 11:00:00,50,walking,85,5,3,4,HA_B
+E006,U001,2026-10-01 12:00:00,55,sitting,78,6,3,4,HA_A
+E007,U003,2026-10-01 13:30:00,80,commuting,70,9,5,2,HA_A
+E008,U002,2026-10-01 14:00:00,38,working,74,4,2,5,HA_B
+E009,U001,2026-10-01 15:15:00,62,walking,65,7,4,3,HA_A
+E010,U003,2026-10-01 16:00:00,45,sitting,61,5,3,4,HA_B
+E011,U002,2026-10-02 08:10:00,72,commuting,93,8,4,3,HA_B
+E012,U003,2026-10-02 09:20:00,33,sitting,90,4,2,5,HA_A

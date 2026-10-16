@@ -1,0 +1,34 @@
+
+version: 2
+
+models:
+  - name: stg_hearing_aid_events
+    description: "Cleaned hearing-aid device events for analytics."
+
+    columns:
+      - name: event_id
+        description: "Unique identifier for each device event."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: user_id
+        description: "Synthetic user identifier."
+        data_tests:
+          - not_null
+
+      - name: event_timestamp
+        data_tests:
+          - not_null
+
+      - name: feedback_rating
+        description: "Synthetic feedback score from 1 to 5."
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+      - name: battery_pct
+        description: "Remaining battery percentage."
+        data_tests:
+          - not_null

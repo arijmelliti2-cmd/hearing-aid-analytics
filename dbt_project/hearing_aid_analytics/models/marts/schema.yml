@@ -1,0 +1,40 @@
+
+version: 2
+
+models:
+  - name: fct_hearing_aid_events
+    description: "One analytical record per hearing-aid device event."
+    columns:
+      - name: event_id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: feedback_rating
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+      - name: battery_pct
+        data_tests:
+          - not_null
+
+  - name: agg_hearing_aid_feedback
+    description: "Feedback and device KPIs grouped by device model and activity."
+    columns:
+      - name: device_model
+        data_tests:
+          - not_null
+
+      - name: activity
+        data_tests:
+          - not_null
+
+      - name: total_events
+        data_tests:
+          - not_null
+
+      - name: avg_feedback_rating
+        data_tests:
+          - not_null
