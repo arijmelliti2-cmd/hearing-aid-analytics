@@ -1,0 +1,32 @@
+
+version: 2
+
+models:
+  - name: dim_device
+    description: "One record per hearing-aid device model."
+    columns:
+      - name: device_key
+        data_tests:
+          - unique
+          - not_null
+      - name: device_model
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_activity
+    description: "One record per activity type with a business category."
+    columns:
+      - name: activity_key
+        data_tests:
+          - unique
+          - not_null
+      - name: activity
+        data_tests:
+          - unique
+          - not_null
+      - name: activity_group
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['Mobile', 'Stationary', 'Other']

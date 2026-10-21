@@ -19,6 +19,21 @@ models:
       - name: battery_pct
         data_tests:
           - not_null
+      
+      - name: device_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_device')
+              field: device_key
+
+      - name: activity_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_activity')
+              field: activity_key
+
 
   - name: agg_hearing_aid_feedback
     description: "Feedback and device KPIs grouped by device model and activity."
