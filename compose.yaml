@@ -16,6 +16,63 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+
+  airflow-db:
+    image: postgres:16
+    container_name: hearing-aid-airflow-db
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow_dev_password
+    volumes:
+      - airflow_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: hearing-aid-airflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-db:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow_dev_password@airflow-db:5432/airflow
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "false"
+      DBT_PROFILES_DIR: /opt/airflow/profiles
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./dbt_project/hearing_aid_analytics:/opt/airflow/dbt_project/hearing_aid_analytics
+      - ./airflow/profiles.yml:/opt/airflow/profiles/profiles.yml:ro
+    ports:
+      - "8081:8080"
+    command: standalone
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: hearing-aid-dashboard
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://analytics_user:local_dev_password@postgres:5432/hearing_aid
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  airflow_db_data:
