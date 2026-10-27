@@ -9,7 +9,7 @@ from airflow.operators.bash import BashOperator
 
 DBT_PROJECT_DIR = "/opt/airflow/dbt_project/hearing_aid_analytics"
 DBT_PROFILES_DIR = "/opt/airflow/profiles"
-
+LOCAL_TZ = pendulum.timezone("Europe/Berlin")
 
 default_args = {
     "owner": "data-engineering",
@@ -22,9 +22,11 @@ with DAG(
     dag_id="hearing_aid_pipeline",
     description="Orchestrate the hearing-aid analytics dbt pipeline",
     default_args=default_args,
-    start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
-    schedule=None,
+    start_date=pendulum.datetime(2026, 1, 1, tz=LOCAL_TZ),
+    schedule="0 6 * * *",
     catchup=False,
+    max_active_runs=1,
+    dagrun_timeout=timedelta(hours=1),
     tags=["dbt", "postgres", "hearing-aid"],
 ) as dag:
 
