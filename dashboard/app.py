@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-
+from metrics import weighted_average, weighted_percentage
 
 # --------------------------------------------------
 # Page configuration
@@ -120,23 +120,20 @@ if filtered.empty:
 
 total_events = int(filtered["total_events"].sum())
 
-if total_events > 0:
-    weighted_avg_feedback = (
-        filtered["avg_feedback_rating"] * filtered["total_events"]
-    ).sum() / total_events
+weighted_avg_feedback = weighted_average(
+    filtered,
+    "avg_feedback_rating",
+)
 
-    weighted_loud_pct = (
-        filtered["loud_environment_pct"] * filtered["total_events"]
-    ).sum() / total_events
+weighted_loud_pct = weighted_percentage(
+    filtered,
+    "loud_environment_pct",
+)
 
-    weighted_low_feedback_loud_pct = (
-        filtered["low_feedback_in_loud_environment_pct"]
-        * filtered["total_events"]
-    ).sum() / total_events
-else:
-    weighted_avg_feedback = 0
-    weighted_loud_pct = 0
-    weighted_low_feedback_loud_pct = 0
+weighted_low_feedback_loud_pct = weighted_percentage(
+    filtered,
+    "low_feedback_in_loud_environment_pct",
+)
 
 low_feedback_events = int(filtered["low_feedback_events"].sum())
 low_battery_events = int(filtered["low_battery_events"].sum())
