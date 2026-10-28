@@ -1,0 +1,95 @@
+name: dbt CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  dbt-validation:
+    name: Validate dbt pipeline
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: hearing_aid
+          POSTGRES_USER: analytics_user
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U analytics_user -d hearing_aid"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DBT_PROJECT_DIR: dbt_project/hearing_aid_analytics
+      DBT_PROFILES_DIR: ~/.dbt
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dbt
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-core==1.8.8 dbt-postgres==1.8.2
+
+      - name: Configure dbt profile
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.dbt"
+
+          cat > "$HOME/.dbt/profiles.yml" <<'EOF'
+          hearing_aid_analytics:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: localhost
+                user: analytics_user
+                password: ci_test_password
+                port: 5432
+                dbname: hearing_aid
+                schema: analytics
+                threads: 4
+                sslmode: disable
+          EOF
+
+      - name: Check dbt connection
+        run: |
+          dbt debug \
+            --project-dir "$DBT_PROJECT_DIR" \
+            --profiles-dir "$HOME/.dbt"
+
+      - name: Load synthetic seed data
+        run: |
+          dbt seed \
+            --project-dir "$DBT_PROJECT_DIR" \
+            --profiles-dir "$HOME/.dbt"
+
+      - name: Build models and run tests
+        run: |
+          dbt build \
+            --project-dir "$DBT_PROJECT_DIR" \
+            --profiles-dir "$HOME/.dbt"
+
+      - name: Generate dbt documentation
+        run: |
+          dbt docs generate \
+            --project-dir "$DBT_PROJECT_DIR" \
+            --profiles-dir "$HOME/.dbt"
